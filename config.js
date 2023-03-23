@@ -1,5 +1,6 @@
 module.exports.config = {
     "LOCAL": {
+      "JWT_secret":"KHUSHAL_PATIL",
       "dataBase": {
         "dbConnectionString": process.env.DB_CONNECTION,
       },

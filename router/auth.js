@@ -18,5 +18,13 @@ router.post('/register',async (req,res)=>{
     })
 })
 
+router.post('/verifyOtp',async (req,res)=>{
+    authController.verifyOTP(req).then((user)=>{
+        res.status(200).send(user)
+    }).catch((err)=>{
+        res.status(400).send(err)
+    })
+})
+
 
 module.exports = router;

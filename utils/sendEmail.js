@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const {emailHost,emailFrom,emailPortsecure,pass} = require('./config').config[env]
+const {emailHost,emailFrom,emailPortsecure,emailPort,pass} = require('../config').config[env]
 module.exports = {
     sendEmailNotification : async( htmlToSend , reciepant ,subject)=>{
         try{
@@ -8,9 +8,9 @@ module.exports = {
                 address: emailFrom
             }
             let mailOptions = {
-                    from: from, // sender address
-                    to: reciepant, // list of receivers
-                    subject, // Subject line
+                    from: from,
+                    to: reciepant,
+                    subject,
                     html: htmlToSend
                 };
             let transporter = nodemailer.createTransport({

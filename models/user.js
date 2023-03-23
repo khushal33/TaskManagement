@@ -2,9 +2,10 @@ const mongoose = require("mongoose");
 var bcrypt = require('bcrypt-nodejs');
 
 const userSchema = new mongoose.Schema({
-    email:{type:String,required:true},
+    email:{type:String,required:true,unique:true},
     isVerified:{type:String,required:true},
-    password:{type:String,required:true}
+    password:{type:String,required:true},
+    otp:{type:Number,required:true}
 })
 
 // hash the password

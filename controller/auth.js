@@ -1,4 +1,3 @@
-const { use } = require('..')
 const User = require('../models/user')
 var jwt = require("jsonwebtoken");
 const config = require('../config').config[env]
@@ -8,12 +7,11 @@ const fs = require('fs');
 let directory = `${__dirname.split('/controller')[0]}/templates/`;
 
 const verifyToken = (req, res, next) => {
-    let token = req.headers["x-access-token"];
-
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(" ")[1];
     if (!token) {
         return res.status(403).send({ message: "No token provided!" });
     }
-
     jwt.verify(token, config.JWT_secret, (err, decoded) => {
         if (err) {
             return res.status(401).send({ message: "Unauthorized!" });
@@ -38,7 +36,17 @@ const register = (req, res) => {
                 })
                 new_user.password = new_user.generateHash(password);
                 let done = await new_user.save()
-                resolve({ status: true, message: done })
+                fs.readFile(`${directory}sendOtp.html`, 'utf-8',
+                    async function(err,otpTemplate){
+                    const replacements = {
+                        email,
+                        otp
+                    };
+                let compiledTemplate = handlebars.compile(otpTemplate);
+                let htmlToSend = compiledTemplate(replacements);
+                sendEmailNotification(htmlToSend ,email , 'OTP Verification');
+                })
+                resolve({ status: true, message: "Successfully Registered" })
             }
         } catch (err) {
             reject({ status: false, message: err.message })
@@ -58,17 +66,15 @@ const generateOTP = (req, res) => {
 const verifyOTP = (req, res) => {
     return new Promise(async (resolve, reject) => {
         const { email, otp } = req.body
-        let userExistOrNot = await checkUserExistOrNot(email)
-        if (userExistOrNot.status == false) {
-            reject(userExistOrNot)
-        } else {
-            let new_user = new User({
-                email
-            })
-            new_user.password = new_user.generateHash(password);
-            let done = await new_user.save()
-            resolve({ status: true, message: done })
-        }
+        User.findOne({email,otp}).then(async (data)=>{
+            if(data){
+                await User.updateOne({email},{$set:{isVerified:true}}).then(updateData=>{
+                    resolve({status:true,message:"User Verified"})
+                }).catch(err=>{reject({status:false,message:err.message})})
+            }else{
+                reject({status:false,message:"Enter valid otp!"})
+            }
+        }).catch(err=>reject({status:false,message:err.message}))
     })
 }
 
@@ -78,8 +84,9 @@ const login = (req, res) => {
             const { email, password } = req.body
             let user = await User.findOne({ email })
             if (user) {
-                let isVerified = checkUserVerifiedOrNot(email)
-                if (isVerified) {
+                let isVerified =await checkUserVerifiedOrNot(email)
+                console.log("isVerified==>",isVerified)
+                if (isVerified.status) {
                     let done = await user.validPassword(password)
                     if (done) {
                         var token = jwt.sign({ id: user.id, email: email }, config.JWT_secret, {
@@ -89,6 +96,8 @@ const login = (req, res) => {
                     } else {
                         reject({ status: false, message: "Incorrect username or password" })
                     }
+                }else{
+                    reject({ status: false, message: "User not Verified" })
                 }
             }else{
                 reject({ status: false, message: "User not exists" })
@@ -104,9 +113,9 @@ const checkUserVerifiedOrNot = (email) => {
         try {
             let user = await User.findOne({ email, isVerified: true })
             if (user) {
-                resolve({ status: false, message: "" })
+                resolve({ status: true, message: "User Verified" })
             } else {
-                reject({ status: true  , message: "OTP not verified"  })
+                reject({ status: false  , message: "User not verified"  })
             }
         } catch (err) {
             reject({ status: false, message: err.message })
@@ -124,7 +133,7 @@ const checkUserExistOrNot = (email) => {
                 resolve({ status: true })
             }
         } catch (err) {
-            reject(err)
+            reject({ status: false, message: err.message })
         }
     })
 }

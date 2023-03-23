@@ -13,7 +13,7 @@ app.use(express.json())
 /**Routes  */
 const userRouter = require('./router/auth')
 
-app.use('/api/user/',userRouter)
+app.use('/api',userRouter)
 
 //
 const startServer = async () =>{
