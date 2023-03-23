@@ -2,6 +2,10 @@ const { use } = require('..')
 const User = require('../models/user')
 var jwt = require("jsonwebtoken");
 const config = require('../config').config[env]
+const { sendEmailNotification } = require('../utils/sendEmail');
+const handlebars = require('handlebars');
+const fs = require('fs');
+let directory = `${__dirname.split('/controller')[0]}/templates/`;
 
 const verifyToken = (req, res, next) => {
     let token = req.headers["x-access-token"];
