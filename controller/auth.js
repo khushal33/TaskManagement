@@ -8,6 +8,9 @@ let directory = `${__dirname.split('/controller')[0]}/templates/`;
 
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
+    if(!authHeader){
+        return res.status(403).send({ message: "No token provided!" })
+    }
     const token = authHeader.split(" ")[1];
     if (!token) {
         return res.status(403).send({ message: "No token provided!" });
@@ -18,7 +21,6 @@ const verifyToken = (req, res, next) => {
         }
         req.userId = decoded.id;
         req.email = decoded.email;
-        console.log(req.email)
         next();
     });
 };
@@ -90,7 +92,7 @@ const login = (req, res) => {
                     let done = await user.validPassword(password)
                     if (done) {
                         var token = jwt.sign({ id: user.id, email: email }, config.JWT_secret, {
-                            expiresIn: 300 //5 mins
+                            expiresIn: 300000//300 //5 mins
                         });
                         resolve({ status: true, message: user, token: token })
                     } else {

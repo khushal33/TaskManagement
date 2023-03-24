@@ -19,6 +19,14 @@ router.put('/',verifyToken,async (req,res)=>{
     })
 })
 
+router.put('/rearrange',verifyToken,async (req,res)=>{
+    taskController.rearrangeTask(req).then((task)=>{
+        res.status(200).send(task)
+    }).catch((err)=>{
+        res.status(400).send(err)
+    })
+})
+
 router.get('/',verifyToken,async (req,res)=>{
     taskController.getTask(req).then((task)=>{
         res.status(200).send(task)
@@ -27,7 +35,7 @@ router.get('/',verifyToken,async (req,res)=>{
     })
 })
 
-router.delete('/',verifyToken,async (req,res)=>{
+router.delete('/:_id',verifyToken,async (req,res)=>{
     taskController.deleteTask(req).then((task)=>{
         res.status(200).send(task)
     }).catch((err)=>{
