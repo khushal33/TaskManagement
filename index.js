@@ -12,8 +12,10 @@ app.use(express.json())
 
 /**Routes  */
 const userRouter = require('./router/auth')
+const taskRouter = require('./router/task')
 
 app.use('/api',userRouter)
+app.use('/api/task',taskRouter)
 
 //
 const startServer = async () =>{

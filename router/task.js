@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const taskController = require('../controller/task')
-const {verifyOTP} = require('../controller/auth')
+const {verifyToken} = require('../controller/auth')
 
-router.post('/',verifyOTP,async (req,res)=>{
+router.post('/',verifyToken,async (req,res)=>{
     taskController.createTask(req).then((task)=>{
     res.status(200).send(task)
     }).catch((err)=>{
@@ -11,7 +11,7 @@ router.post('/',verifyOTP,async (req,res)=>{
     })
 })
 
-router.put('/',verifyOTP,async (req,res)=>{
+router.put('/',verifyToken,async (req,res)=>{
     taskController.updateTask(req).then((task)=>{
         res.status(200).send(task)
     }).catch((err)=>{
@@ -19,7 +19,7 @@ router.put('/',verifyOTP,async (req,res)=>{
     })
 })
 
-router.get('/',verifyOTP,async (req,res)=>{
+router.get('/',verifyToken,async (req,res)=>{
     taskController.getTask(req).then((task)=>{
         res.status(200).send(task)
     }).catch((err)=>{
@@ -27,7 +27,7 @@ router.get('/',verifyOTP,async (req,res)=>{
     })
 })
 
-router.delete('/',verifyOTP,async (req,res)=>{
+router.delete('/',verifyToken,async (req,res)=>{
     taskController.deleteTask(req).then((task)=>{
         res.status(200).send(task)
     }).catch((err)=>{

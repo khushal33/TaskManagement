@@ -18,6 +18,7 @@ const verifyToken = (req, res, next) => {
         }
         req.userId = decoded.id;
         req.email = decoded.email;
+        console.log(req.email)
         next();
     });
 };
@@ -85,7 +86,6 @@ const login = (req, res) => {
             let user = await User.findOne({ email })
             if (user) {
                 let isVerified =await checkUserVerifiedOrNot(email)
-                console.log("isVerified==>",isVerified)
                 if (isVerified.status) {
                     let done = await user.validPassword(password)
                     if (done) {
