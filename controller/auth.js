@@ -29,6 +29,11 @@ const register = (req, res) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { email, password } = req.body
+            const emailRegexp = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+            let validateEmail = emailRegexp.test(email)
+            if(!validateEmail){
+                reject({ status: false, message: "Please enter valid email!" })
+            }else{
             let userExistOrNot = await checkUserExistOrNot(email)
             if (userExistOrNot) {
                 let otp = generateOTP()
@@ -50,6 +55,7 @@ const register = (req, res) => {
                 sendEmailNotification(htmlToSend ,email , 'OTP Verification');
                 })
                 resolve({ status: true, message: "Successfully Registered" })
+            }
             }
         } catch (err) {
             reject({ status: false, message: err.message })

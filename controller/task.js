@@ -47,15 +47,18 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
             const {sourceSeq,destSeq} = req.body;
             const {userId}=req
-            if(sourceSeq <= destSeq){
-                await Task.findOneAndUpdate({user:userId ,seqNo:sourceSeq},{$set:{seqNo:sourceSeq - 0.5}},{new: true, runValidators: true})
-                await Task.updateMany({user:userId , $and:[{seqNo:{$gt:sourceSeq,$lte:destSeq}}]},{ $inc: {seqNo: -1}},{new: true, runValidators: true})
-                await Task.findOneAndUpdate({user:userId ,seqNo:sourceSeq - 0.5},{$set:{seqNo:destSeq}},{new: true, runValidators: true})
+            if(sourceSeq == destSeq){
+                resolve({status:true,message:"sucess"})
+            }
+            if(sourceSeq < destSeq){
+                await Task.findOneAndUpdate({user:userId ,seqNo:sourceSeq},{$set:{seqNo:sourceSeq - 0.5}})
+                await Task.updateMany({user:userId , $and:[{seqNo:{$gt:sourceSeq,$lte:destSeq}}]},{ $inc: {seqNo: -1}})
+                await Task.findOneAndUpdate({user:userId ,seqNo:sourceSeq - 0.5},{$set:{seqNo:destSeq}})
                 resolve({status:true,message:"sucess"})
             }else{
-                await Task.findOneAndUpdate({user:userId ,seqNo:sourceSeq},{$set:{seqNo:sourceSeq + 0.5}},{new: true, runValidators: true})
-                await Task.updateMany({user:userId , $and:[{seqNo:{$gte:destSeq,$lt:sourceSeq}}]},{ $inc: {seqNo: 1}},{new: true, runValidators: true})
-                await Task.findOneAndUpdate({user:userId ,seqNo:sourceSeq + 0.5},{$set:{seqNo:destSeq}},{new: true, runValidators: true})
+                await Task.findOneAndUpdate({user:userId ,seqNo:sourceSeq},{$set:{seqNo:sourceSeq + 0.5}})
+                await Task.updateMany({user:userId , $and:[{seqNo:{$gte:destSeq,$lt:sourceSeq}}]},{ $inc: {seqNo: 1}}).sort({seqNo:-1})
+                await Task.findOneAndUpdate({user:userId ,seqNo:sourceSeq + 0.5},{$set:{seqNo:destSeq}})
                 resolve({status:true,message:"sucess"})
             }
         })
@@ -64,8 +67,15 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
             try{
                 const {_id} = req.params;
-                let data = await Task.deleteOne({_id})
-                resolve({status:true, data})
+                const {userId} = req;
+                let data = await Task.findOne({_id})
+                if(data){
+                    await Task.deleteOne({_id})
+                    await Task.updateMany({user:userId , $and:[{seqNo:{$gt:data.seqNo}}]},{ $inc: {seqNo: -1}})
+                    resolve({status:true,message:"sucess"})
+                }else{
+                    reject({status:false, message:"Task not exists!"})
+                }
             }catch(err){
                 reject({status:false, message:err.message})
             }
