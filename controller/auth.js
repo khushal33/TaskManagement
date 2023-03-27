@@ -98,7 +98,7 @@ const login = (req, res) => {
                     let done = await user.validPassword(password)
                     if (done) {
                         var token = jwt.sign({ id: user.id, email: email }, config.JWT_secret, {
-                            expiresIn: 300000//300 //5 mins
+                            expiresIn: 300 //5 mins
                         });
                         resolve({ status: true, message: user, token: token })
                     } else {
