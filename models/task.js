@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const taskSchema = new mongoose.Schema({
-    name:{type:String,required:true,unique:true},
+    name:{type:String,required:true},
     user:{ type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     date:{type:Date,required:true},
     status:{type:String,required:true,enum:["Completed","Incomplete"]},
