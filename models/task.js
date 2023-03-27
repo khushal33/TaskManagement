@@ -5,7 +5,7 @@ const taskSchema = new mongoose.Schema({
     user:{ type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     date:{type:Date,required:true},
     status:{type:String,required:true,enum:["Completed","Incomplete"]},
-    seqNo:{type:Number,require:true,unique:true}
+    seqNo:{type:Number,require:true}
 })
 
 const Task = mongoose.model('Task',taskSchema)
